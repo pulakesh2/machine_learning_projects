@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="../static/style.css" />
+    <title>sales dashboard</title>
+  </head>
+  <body>
+    <h1>sales dashboard</h1>
+    <div class="cards">
+      <div class="card">
+        <h2>Total Revenue</h2>
+        <p>₹{{ total_revenue }}</p>
+      </div>
+
+      <div class="card">
+        <h2>Total Orders</h2>
+        <p>{{ total_orders }}</p>
+      </div>
+
+      <div class="card">
+        <h2>Total Quantity</h2>
+        <p>{{ total_quantity }}</p>
+      </div>
+
+      <div class="card">
+        <h2>Average Order Value</h2>
+        <p>₹{{ "%.2f"|format(average_order_value) }}</p>
+      </div>
+    </div>
+
+    <div class="insights">
+      <h2>Top Insights 🔥</h2>
+      <p><b>Best City:</b> {{ best_city }}</p>
+      <p><b>Best Product:</b> {{ best_product }}</p>
+      <p><b>Best Customer:</b> {{ best_customer }}</p>
+    </div>
+
+    <div class="section">
+      <h2>City Revenue 🏙️</h2>
+      {{ city_table | safe }}
+    </div>
+
+    <div class="section">
+      <h2>Product Revenue 📦</h2>
+      {{ product_table | safe }}
+    </div>
+
+    <div class="section">
+      <h2>Whole Table 📦</h2>
+      {{ total_table | safe }}
+    </div>
+  </body>
+</html>
