@@ -1,0 +1,256 @@
+{% extends 'base.html' %}
+
+{% block title %}Column Relationships - Analytics{% endblock %}
+
+{% block header_title %}Column Relationships{% endblock %}
+{% block header_subtitle %}Exploring interactions between salaries, job satisfaction, remote work, upskilling, and work hours{% endblock %}
+
+{% block content %}
+<!-- Scatter Plot: Salary vs Job Satisfaction -->
+<div class="card mb-8">
+  <div class="card-header">
+    <h3>Salary vs. Job Satisfaction</h3>
+    <span class="badge badge-info"><i class="fa-solid fa-chart-line"></i> Scatter Plot</span>
+  </div>
+  <p class="mb-4" style="font-size: 14px; color: var(--text-secondary);">
+    Are higher salaries linked to higher job satisfaction? Below is a representative scatter plot from our dataset. Hover over the dots to see specific roles.
+  </p>
+  <div class="chart-container" style="height: 380px;">
+    <canvas id="salarySatisfactionScatterChart"></canvas>
+  </div>
+</div>
+
+<!-- Upskilling Needed vs AI Tool Usage -->
+<div class="visual-grid">
+  <!-- Stacked Bar Chart -->
+  <div class="card">
+    <div class="card-header">
+      <h3>Upskilling Needed vs. AI Tool Usage</h3>
+      <span class="badge badge-indigo"><i class="fa-solid fa-graduation-cap"></i> AI Tools Adoption</span>
+    </div>
+    <div class="chart-container">
+      <canvas id="upskillingAiToolsChart"></canvas>
+    </div>
+    <p class="mt-4" style="font-size: 13px; color: var(--text-secondary);">
+      Shows how AI Tool adoption levels (Low, Medium, High) vary between roles that require upskilling ("Yes") vs. those that do not ("No").
+    </p>
+  </div>
+
+  <!-- Remote Work vs Satisfaction & Salary -->
+  <div class="card">
+    <div class="card-header">
+      <h3>Remote Work vs. Satisfaction & Salary</h3>
+      <span class="badge badge-teal"><i class="fa-solid fa-house-laptop"></i> Global Remote Impact</span>
+    </div>
+    <p class="mb-4" style="font-size: 14px; color: var(--text-secondary);">
+      Does remote work correlate with higher job satisfaction and average salaries across the globe?
+    </p>
+    <div class="stats-grid" style="grid-template-columns: 1fr 1fr; margin-bottom: 24px;">
+      <div style="text-align: center; border-right: 1px solid var(--border-glass);">
+        <span style="font-size: 12px; color: var(--text-muted); text-transform: uppercase;">Remote Satisfaction (Avg)</span>
+        <h4 style="font-size: 28px; color: var(--accent-teal); margin-top: 8px;">{{ chart_data.remote_satisfaction_avg[0] }} / 10</h4>
+        <span style="font-size: 11px; color: var(--text-muted);">vs. Office: {{ chart_data.remote_satisfaction_avg[1] }} / 10</span>
+      </div>
+      <div style="text-align: center;">
+        <span style="font-size: 12px; color: var(--text-muted); text-transform: uppercase;">Remote Salary (Avg)</span>
+        <h4 style="font-size: 28px; color: var(--accent-amber); margin-top: 8px;">${{ "{:,}".format(chart_data.remote_salary_avg[0] | int) }}</h4>
+        <span style="font-size: 11px; color: var(--text-muted);">vs. Office: ${{ "{:,}".format(chart_data.remote_salary_avg[1] | int) }}</span>
+      </div>
+    </div>
+    <div class="chart-container" style="height: 180px;">
+      <canvas id="remoteGlobalComparisonChart"></canvas>
+    </div>
+  </div>
+</div>
+
+<!-- Work Hours Comparison -->
+<div class="visual-grid">
+  <!-- Work Hours per Week by Job Title (Global) -->
+  <div class="card">
+    <div class="card-header">
+      <h3>Global Work Hours: Job Titles</h3>
+      <span class="badge badge-warning"><i class="fa-solid fa-clock"></i> Weekly Hours</span>
+    </div>
+    <div class="table-container" style="max-height: 250px; overflow-y: auto;">
+      {{ tables.global_job_hours_html | safe }}
+    </div>
+  </div>
+
+  <!-- Work Hours per Week by Industry (Global) -->
+  <div class="card">
+    <div class="card-header">
+      <h3>Global Work Hours: Industries</h3>
+      <span class="badge badge-warning"><i class="fa-solid fa-clock"></i> Weekly Hours</span>
+    </div>
+    <div class="table-container" style="max-height: 250px; overflow-y: auto;">
+      {{ tables.global_ind_hours_html | safe }}
+    </div>
+  </div>
+</div>
+
+<script>
+  const chartData = {{ chart_data | tojson }};
+
+  // Salary vs Job Satisfaction Scatter Plot
+  new Chart(document.getElementById('salarySatisfactionScatterChart'), {
+    type: 'scatter',
+    data: {
+      datasets: [{
+        label: 'Employee Data Points',
+        data: chartData.scatter_points.map(p => ({ x: p.x, y: p.y })),
+        backgroundColor: 'rgba(99, 102, 241, 0.6)',
+        borderColor: 'rgba(99, 102, 241, 0.8)',
+        borderWidth: 1,
+        pointRadius: 4,
+        pointHoverRadius: 6
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        tooltip: {
+          callbacks: {
+            label: function(context) {
+              const pointIndex = context.dataIndex;
+              const point = chartData.scatter_points[pointIndex];
+              return `${point.label} (Salary: $${point.x.toLocaleString()}, Sat: ${point.y})`;
+            }
+          }
+        },
+        legend: { display: false }
+      },
+      scales: {
+        x: {
+          title: { display: true, text: 'Average Salary (USD)', color: '#f8fafc', font: { family: 'Inter', size: 12 } },
+          grid: { color: 'rgba(255, 255, 255, 0.05)' },
+          ticks: { color: '#94a3b8', font: { family: 'Inter', size: 11 } }
+        },
+        y: {
+          title: { display: true, text: 'Job Satisfaction (1-10)', color: '#f8fafc', font: { family: 'Inter', size: 12 } },
+          grid: { color: 'rgba(255, 255, 255, 0.05)' },
+          ticks: { color: '#94a3b8', font: { family: 'Inter', size: 11 } },
+          min: 0,
+          max: 10
+        }
+      }
+    }
+  });
+
+  // Upskilling vs AI Tools Stacked Chart
+  new Chart(document.getElementById('upskillingAiToolsChart'), {
+    type: 'bar',
+    data: {
+      labels: chartData.tool_categories,
+      datasets: [
+        {
+          label: 'Upskilling Needed (Yes)',
+          data: chartData.upskilling_yes,
+          backgroundColor: 'rgba(99, 102, 241, 0.7)',
+          borderColor: 'rgba(99, 102, 241, 1)',
+          borderWidth: 1.5,
+          borderRadius: 4
+        },
+        {
+          label: 'Upskilling Needed (No)',
+          data: chartData.upskilling_no,
+          backgroundColor: 'rgba(20, 184, 166, 0.7)',
+          borderColor: 'rgba(20, 184, 166, 1)',
+          borderWidth: 1.5,
+          borderRadius: 4
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        x: {
+          grid: { color: 'rgba(255, 255, 255, 0.05)' },
+          ticks: { color: '#94a3b8', font: { family: 'Inter', size: 11 } }
+        },
+        y: {
+          grid: { color: 'rgba(255, 255, 255, 0.05)' },
+          ticks: { color: '#94a3b8', font: { family: 'Inter', size: 11 } },
+          beginAtZero: true
+        }
+      },
+      plugins: {
+        legend: {
+          position: 'bottom',
+          labels: { color: '#f8fafc', font: { family: 'Inter', size: 11 } }
+        }
+      }
+    }
+  });
+
+  // Remote Global Comparison Chart (Grouped Bar Chart)
+  new Chart(document.getElementById('remoteGlobalComparisonChart'), {
+    type: 'bar',
+    data: {
+      labels: ['Satisfaction (Avg * 10k)', 'Salary (Avg)'],
+      datasets: [
+        {
+          label: 'Remote (Yes)',
+          data: [chartData.remote_satisfaction_avg[0] * 10000, chartData.remote_salary_avg[0]],
+          backgroundColor: 'rgba(20, 184, 166, 0.75)',
+          borderColor: 'rgba(20, 184, 166, 1)',
+          borderWidth: 1,
+          borderRadius: 4
+        },
+        {
+          label: 'On-site (No)',
+          data: [chartData.remote_satisfaction_avg[1] * 10000, chartData.remote_salary_avg[1]],
+          backgroundColor: 'rgba(245, 158, 11, 0.75)',
+          borderColor: 'rgba(245, 158, 11, 1)',
+          borderWidth: 1,
+          borderRadius: 4
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        x: {
+          grid: { color: 'rgba(255, 255, 255, 0.05)' },
+          ticks: { color: '#94a3b8', font: { family: 'Inter', size: 11 } }
+        },
+        y: {
+          grid: { color: 'rgba(255, 255, 255, 0.05)' },
+          ticks: {
+            color: '#94a3b8',
+            font: { family: 'Inter', size: 10 },
+            callback: function(value) {
+              return value >= 1000 ? '$' + (value/1000) + 'k' : value;
+            }
+          },
+          beginAtZero: true
+        }
+      },
+      plugins: {
+        legend: {
+          position: 'bottom',
+          labels: { color: '#f8fafc', font: { family: 'Inter', size: 11 } }
+        },
+        tooltip: {
+          callbacks: {
+            label: function(context) {
+              let label = context.dataset.label || '';
+              if (label) { label += ': '; }
+              if (context.dataIndex === 0) {
+                // Satisfaction index
+                label += (context.raw / 10000).toFixed(2) + ' / 10';
+              } else {
+                // Salary
+                label += '$' + context.raw.toLocaleString();
+              }
+              return label;
+            }
+          }
+        }
+      }
+    }
+  });
+</script>
+{% endblock %}

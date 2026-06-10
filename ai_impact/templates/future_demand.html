@@ -1,0 +1,176 @@
+{% extends 'base.html' %}
+
+{% block title %}Future Job Demand - Analytics{% endblock %}
+
+{% block header_title %}Future Job Demand{% endblock %}
+{% block header_subtitle %}Analysis of job roles and industry sectors expected to grow in demand over the coming years{% endblock %}
+
+{% block content %}
+<!-- Charts Row 1 -->
+<div class="visual-grid">
+  <!-- Job Demand Chart -->
+  <div class="card">
+    <div class="card-header">
+      <h3>Average Future Demand by Job Title</h3>
+      <span class="badge badge-info"><i class="fa-solid fa-chart-bar"></i> Bar Chart</span>
+    </div>
+    <div class="chart-container">
+      <canvas id="jobDemandChart"></canvas>
+    </div>
+  </div>
+
+  <!-- Industry Demand Chart -->
+  <div class="card">
+    <div class="card-header">
+      <h3>Average Future Demand by Industry</h3>
+      <span class="badge badge-info"><i class="fa-solid fa-chart-bar"></i> Bar Chart</span>
+    </div>
+    <div class="chart-container">
+      <canvas id="industryDemandChart"></canvas>
+    </div>
+  </div>
+</div>
+
+<!-- Charts Row 2 -->
+<div class="visual-grid">
+  <!-- Growing Roles for 2026 -->
+  <div class="card">
+    <div class="card-header">
+      <h3>Growing Jobs Demand in 2026</h3>
+      <span class="badge badge-success"><i class="fa-solid fa-seedling"></i> Growing Trend</span>
+    </div>
+    <div class="chart-container">
+      <canvas id="growingJobsChart"></canvas>
+    </div>
+    <p class="mt-4" style="font-size: 13px; color: var(--text-secondary);">
+      Showing average demand scores specifically for job categories marked with a 'Growing' hiring trend for the year 2026.
+    </p>
+  </div>
+
+  <!-- Specific Sector Breakdowns -->
+  <div class="card">
+    <div class="card-header">
+      <h3>Software Developer Demand by Country</h3>
+      <span class="badge badge-info"><i class="fa-solid fa-laptop-code"></i> Tech Demand</span>
+    </div>
+    <div class="table-container mb-4" style="max-height: 250px; overflow-y: auto;">
+      {{ tables.sd_country_demand_html | safe }}
+    </div>
+  </div>
+</div>
+
+<!-- Table Row -->
+<div class="visual-grid visual-grid-wide">
+  <!-- Complete Data Tables -->
+  <div class="card">
+    <div class="card-header">
+      <h3>Global Future Demand Rankings</h3>
+      <span class="badge badge-success"><i class="fa-solid fa-list-ol"></i> Full Rankings</span>
+    </div>
+    <div class="stats-grid" style="grid-template-columns: 1fr 1fr; margin-bottom: 0;">
+      <div>
+        <h4 class="mb-4" style="font-size: 15px; color: var(--text-secondary);">Future Demand Score by Job Title</h4>
+        <div class="table-container" style="max-height: 400px; overflow-y: auto;">
+          {{ tables.job_demand_html | safe }}
+        </div>
+      </div>
+      <div>
+        <h4 class="mb-4" style="font-size: 15px; color: var(--text-secondary);">Future Demand Score by Industry Sector</h4>
+        <div class="table-container" style="max-height: 400px; overflow-y: auto;">
+          {{ tables.industry_demand_html | safe }}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Government Sector Demands -->
+<div class="card mb-8">
+  <div class="card-header">
+    <h3>Government Sector Demand: Country Breakdown</h3>
+    <span class="badge badge-warning"><i class="fa-solid fa-building-flag"></i> Public Sector</span>
+  </div>
+  <p class="mb-4" style="font-size: 14px; color: var(--text-secondary);">
+    Average future job demand in the Government industry sector, split by countries represented in the dataset.
+  </p>
+  <div class="table-container">
+    {{ tables.gov_country_demand_html | safe }}
+  </div>
+</div>
+
+<script>
+  const chartData = {{ chart_data | tojson }};
+
+  const chartOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        labels: { color: '#f8fafc', font: { family: 'Inter', size: 12 } }
+      }
+    },
+    scales: {
+      x: {
+        grid: { color: 'rgba(255, 255, 255, 0.05)' },
+        ticks: { color: '#94a3b8', font: { family: 'Inter', size: 11 } }
+      },
+      y: {
+        grid: { color: 'rgba(255, 255, 255, 0.05)' },
+        ticks: { color: '#94a3b8', font: { family: 'Inter', size: 11 } },
+        beginAtZero: true
+      }
+    }
+  };
+
+  // Job Demand Chart
+  new Chart(document.getElementById('jobDemandChart'), {
+    type: 'bar',
+    data: {
+      labels: chartData.jobs_labels,
+      datasets: [{
+        label: 'Avg Future Demand Score',
+        data: chartData.jobs_values,
+        backgroundColor: 'rgba(59, 130, 246, 0.65)',
+        borderColor: 'rgba(59, 130, 246, 1)',
+        borderWidth: 1.5,
+        borderRadius: 4
+      }]
+    },
+    options: chartOptions
+  });
+
+  // Industry Demand Chart
+  new Chart(document.getElementById('industryDemandChart'), {
+    type: 'bar',
+    data: {
+      labels: chartData.industries_labels,
+      datasets: [{
+        label: 'Avg Future Demand Score',
+        data: chartData.industries_values,
+        backgroundColor: 'rgba(245, 158, 11, 0.65)',
+        borderColor: 'rgba(245, 158, 11, 1)',
+        borderWidth: 1.5,
+        borderRadius: 4
+      }]
+    },
+    options: chartOptions
+  });
+
+  // Growing Jobs Chart
+  new Chart(document.getElementById('growingJobsChart'), {
+    type: 'bar',
+    data: {
+      labels: chartData.growing_labels,
+      datasets: [{
+        label: 'Growing Job Demand Index',
+        data: chartData.growing_values,
+        backgroundColor: 'rgba(16, 185, 129, 0.65)',
+        borderColor: 'rgba(16, 185, 129, 1)',
+        borderWidth: 1.5,
+        borderRadius: 4
+      }]
+    },
+    options: chartOptions
+  });
+</script>
+{% endblock %}

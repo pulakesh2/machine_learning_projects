@@ -1,0 +1,194 @@
+{% extends 'base.html' %}
+
+{% block title %}AI Replacement Risk - Analytics{% endblock %}
+
+{% block header_title %}AI Replacement Risk{% endblock %}
+{% block header_subtitle %}Analysis of which job titles, industries, and settings are most vulnerable to AI automation{% endblock %}
+
+{% block content %}
+<!-- Charts Row 1 -->
+<div class="visual-grid">
+  <!-- Job Risk Chart -->
+  <div class="card">
+    <div class="card-header">
+      <h3>Average AI Risk by Job Title</h3>
+      <span class="badge badge-info"><i class="fa-solid fa-chart-bar"></i> Bar Chart</span>
+    </div>
+    <div class="chart-container">
+      <canvas id="jobRiskChart"></canvas>
+    </div>
+  </div>
+
+  <!-- Industry Risk Chart -->
+  <div class="card">
+    <div class="card-header">
+      <h3>Average AI Risk by Industry</h3>
+      <span class="badge badge-info"><i class="fa-solid fa-chart-bar"></i> Bar Chart</span>
+    </div>
+    <div class="chart-container">
+      <canvas id="industryRiskChart"></canvas>
+    </div>
+  </div>
+</div>
+
+<!-- Charts Row 2 -->
+<div class="visual-grid">
+  <!-- Remote vs Office Risk -->
+  <div class="card">
+    <div class="card-header">
+      <h3>AI Risk: Remote vs Office Work</h3>
+      <span class="badge badge-info"><i class="fa-solid fa-chart-pie"></i> Doughnut Chart</span>
+    </div>
+    <div class="chart-container" style="max-height: 300px; display: flex; justify-content: center;">
+      <canvas id="remoteRiskChart" style="max-width: 300px;"></canvas>
+    </div>
+    <p class="mt-4 text-center" style="font-size: 14px; color: var(--text-secondary);">
+      Does working remotely protect you from AI risk? Let's look at the average replacement index for remote-friendly roles vs. on-site roles.
+    </p>
+  </div>
+
+  <!-- Finance Sector Vulnerabilities -->
+  <div class="card">
+    <div class="card-header">
+      <h3>Finance Sector Deep-Dive</h3>
+      <span class="badge badge-danger"><i class="fa-solid fa-dollar-sign"></i> Finance Industry</span>
+    </div>
+    <p class="mb-4" style="font-size: 14px; color: var(--text-secondary);">
+      Based on `analysis.ipynb`, the finance sector contains high AI replacement values. Here is how job titles within Finance compare globally:
+    </p>
+    <div class="table-container" style="max-height: 250px; overflow-y: auto;">
+      {{ tables.finance_job_risk_html | safe }}
+    </div>
+  </div>
+</div>
+
+<!-- Table Row -->
+<div class="visual-grid visual-grid-wide">
+  <!-- Complete Data Tables -->
+  <div class="card">
+    <div class="card-header">
+      <h3>Global AI Risk Rankings</h3>
+      <span class="badge badge-success"><i class="fa-solid fa-list-ol"></i> Full Rankings</span>
+    </div>
+    <div class="stats-grid" style="grid-template-columns: 1fr 1fr; margin-bottom: 0;">
+      <div>
+        <h4 class="mb-4" style="font-size: 15px; color: var(--text-secondary);">AI Risk by Job Title (All Sectors)</h4>
+        <div class="table-container" style="max-height: 400px; overflow-y: auto;">
+          {{ tables.job_ai_risk_html | safe }}
+        </div>
+      </div>
+      <div>
+        <h4 class="mb-4" style="font-size: 15px; color: var(--text-secondary);">AI Risk by Industry Sector</h4>
+        <div class="table-container" style="max-height: 400px; overflow-y: auto;">
+          {{ tables.industry_ai_risk_html | safe }}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Finance layoffs by country -->
+<div class="card mb-8">
+  <div class="card-header">
+    <h3>Finance Layoff Risks: Country Breakdown</h3>
+    <span class="badge badge-warning"><i class="fa-solid fa-globe"></i> Finance Risk</span>
+  </div>
+  <p class="mb-4" style="font-size: 14px; color: var(--text-secondary);">
+    In which countries are Finance roles most vulnerable to AI automation layoffs?
+  </p>
+  <div class="table-container">
+    {{ tables.finance_country_risk_html | safe }}
+  </div>
+</div>
+
+<script>
+  // Parse data passed from Flask
+  const chartData = {{ chart_data | tojson }};
+
+  // Common chart styling configuration
+  const chartOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        labels: { color: '#f8fafc', font: { family: 'Inter', size: 12 } }
+      }
+    },
+    scales: {
+      x: {
+        grid: { color: 'rgba(255, 255, 255, 0.05)' },
+        ticks: { color: '#94a3b8', font: { family: 'Inter', size: 11 } }
+      },
+      y: {
+        grid: { color: 'rgba(255, 255, 255, 0.05)' },
+        ticks: { color: '#94a3b8', font: { family: 'Inter', size: 11 } },
+        beginAtZero: true
+      }
+    }
+  };
+
+  // Job Risk Chart
+  new Chart(document.getElementById('jobRiskChart'), {
+    type: 'bar',
+    data: {
+      labels: chartData.jobs_labels,
+      datasets: [{
+        label: 'Avg AI Replacement Risk',
+        data: chartData.jobs_values,
+        backgroundColor: 'rgba(99, 102, 241, 0.65)',
+        borderColor: 'rgba(99, 102, 241, 1)',
+        borderWidth: 1.5,
+        borderRadius: 4
+      }]
+    },
+    options: chartOptions
+  });
+
+  // Industry Risk Chart
+  new Chart(document.getElementById('industryRiskChart'), {
+    type: 'bar',
+    data: {
+      labels: chartData.industries_labels,
+      datasets: [{
+        label: 'Avg AI Replacement Risk',
+        data: chartData.industries_values,
+        backgroundColor: 'rgba(20, 184, 166, 0.65)',
+        borderColor: 'rgba(20, 184, 166, 1)',
+        borderWidth: 1.5,
+        borderRadius: 4
+      }]
+    },
+    options: chartOptions
+  });
+
+  // Remote vs Office Risk Doughnut Chart
+  new Chart(document.getElementById('remoteRiskChart'), {
+    type: 'doughnut',
+    data: {
+      labels: chartData.remote_labels,
+      datasets: [{
+        data: chartData.remote_values,
+        backgroundColor: [
+          'rgba(244, 63, 94, 0.65)',
+          'rgba(59, 130, 246, 0.65)'
+        ],
+        borderColor: [
+          'rgba(244, 63, 94, 1)',
+          'rgba(59, 130, 246, 1)'
+        ],
+        borderWidth: 1.5
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          position: 'bottom',
+          labels: { color: '#f8fafc', font: { family: 'Inter', size: 12 } }
+        }
+      }
+    }
+  });
+</script>
+{% endblock %}

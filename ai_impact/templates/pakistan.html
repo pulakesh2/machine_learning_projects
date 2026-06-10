@@ -1,0 +1,217 @@
+{% extends 'base.html' %}
+
+{% block title %}Pakistan Insights - AI Job Impact{% endblock %}
+
+{% block header_title %}Pakistan Insights{% endblock %}
+{% block header_subtitle %}Deep dive into AI replacement risk and future job demand specifically for Pakistan{% endblock %}
+
+{% block content %}
+<!-- Info Header -->
+<div class="card mb-8">
+  <div class="card-header">
+    <h3>Pakistan Market Highlights</h3>
+    <span class="badge badge-success"><i class="fa-solid fa-flag"></i> Pakistan Data Active</span>
+  </div>
+  <p style="font-size: 15px; color: var(--text-secondary);">
+    This tab focuses exclusively on data points recorded within Pakistan. We analyze which professions are facing high automation risk, which fields have strong future prospects, and sector-specific performance in key fields like Healthcare and Finance.
+  </p>
+</div>
+
+<!-- Risk Section -->
+<div class="visual-grid">
+  <!-- AI Risk by Job Title in Pakistan -->
+  <div class="card">
+    <div class="card-header">
+      <h3>AI Risk by Job Title in Pakistan</h3>
+      <span class="badge badge-danger"><i class="fa-solid fa-chart-bar"></i> Bar Chart</span>
+    </div>
+    <div class="chart-container">
+      <canvas id="pakJobRiskChart"></canvas>
+    </div>
+  </div>
+
+  <!-- AI Risk by Industry in Pakistan -->
+  <div class="card">
+    <div class="card-header">
+      <h3>AI Risk by Industry in Pakistan</h3>
+      <span class="badge badge-danger"><i class="fa-solid fa-chart-bar"></i> Bar Chart</span>
+    </div>
+    <div class="chart-container">
+      <canvas id="pakIndRiskChart"></canvas>
+    </div>
+  </div>
+</div>
+
+<!-- Demand Section -->
+<div class="visual-grid">
+  <!-- Future Job Demand in Pakistan -->
+  <div class="card">
+    <div class="card-header">
+      <h3>Future Demand by Job Title in Pakistan</h3>
+      <span class="badge badge-success"><i class="fa-solid fa-chart-bar"></i> Bar Chart</span>
+    </div>
+    <div class="chart-container">
+      <canvas id="pakJobDemandChart"></canvas>
+    </div>
+  </div>
+
+  <!-- Future Demand by Industry in Pakistan -->
+  <div class="card">
+    <div class="card-header">
+      <h3>Future Demand by Industry in Pakistan</h3>
+      <span class="badge badge-success"><i class="fa-solid fa-chart-bar"></i> Bar Chart</span>
+    </div>
+    <div class="chart-container">
+      <canvas id="pakIndDemandChart"></canvas>
+    </div>
+  </div>
+</div>
+
+<!-- Sector Specific Breakdowns -->
+<div class="visual-grid">
+  <!-- Financial Analyst Demand by Industry in Pakistan -->
+  <div class="card">
+    <div class="card-header">
+      <h3>Financial Analyst Demand (Pakistan)</h3>
+      <span class="badge badge-info"><i class="fa-solid fa-calculator"></i> Finance Sectors</span>
+    </div>
+    <p class="mb-4" style="font-size: 14px; color: var(--text-secondary);">
+      Which industries have the highest demand for the Financial Analyst role inside Pakistan?
+    </p>
+    <div class="table-container">
+      {{ tables.pak_fa_demand_html | safe }}
+    </div>
+  </div>
+
+  <!-- Healthcare Job Demand in Pakistan -->
+  <div class="card">
+    <div class="card-header">
+      <h3>Healthcare Industry Demands (Pakistan)</h3>
+      <span class="badge badge-info"><i class="fa-solid fa-heart-pulse"></i> Healthcare Roles</span>
+    </div>
+    <p class="mb-4" style="font-size: 14px; color: var(--text-secondary);">
+      Within the Healthcare industry of Pakistan, which roles are projected to be in high demand?
+    </p>
+    <div class="table-container">
+      {{ tables.pak_hc_demand_html | safe }}
+    </div>
+  </div>
+</div>
+
+<!-- Complete Data Tables -->
+<div class="visual-grid visual-grid-wide mb-8">
+  <div class="card">
+    <div class="card-header">
+      <h3>Pakistan AI Risk & Demand Rankings</h3>
+      <span class="badge badge-success"><i class="fa-solid fa-list-ol"></i> Full Rankings</span>
+    </div>
+    <div class="stats-grid" style="grid-template-columns: 1fr 1fr; margin-bottom: 0;">
+      <div>
+        <h4 class="mb-4" style="font-size: 15px; color: var(--text-secondary);">Pakistan Jobs: AI Replacement Risk</h4>
+        <div class="table-container" style="max-height: 350px; overflow-y: auto;">
+          {{ tables.pak_job_risk_html | safe }}
+        </div>
+      </div>
+      <div>
+        <h4 class="mb-4" style="font-size: 15px; color: var(--text-secondary);">Pakistan Jobs: Future Demand Score</h4>
+        <div class="table-container" style="max-height: 350px; overflow-y: auto;">
+          {{ tables.pak_job_demand_html | safe }}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const chartData = {{ chart_data | tojson }};
+
+  const chartOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        labels: { color: '#f8fafc', font: { family: 'Inter', size: 12 } }
+      }
+    },
+    scales: {
+      x: {
+        grid: { color: 'rgba(255, 255, 255, 0.05)' },
+        ticks: { color: '#94a3b8', font: { family: 'Inter', size: 11 } }
+      },
+      y: {
+        grid: { color: 'rgba(255, 255, 255, 0.05)' },
+        ticks: { color: '#94a3b8', font: { family: 'Inter', size: 11 } },
+        beginAtZero: true
+      }
+    }
+  };
+
+  // Job Risk Chart (Pakistan)
+  new Chart(document.getElementById('pakJobRiskChart'), {
+    type: 'bar',
+    data: {
+      labels: chartData.job_risk_labels,
+      datasets: [{
+        label: 'AI Replacement Risk',
+        data: chartData.job_risk_values,
+        backgroundColor: 'rgba(244, 63, 94, 0.65)',
+        borderColor: 'rgba(244, 63, 94, 1)',
+        borderWidth: 1.5,
+        borderRadius: 4
+      }]
+    },
+    options: chartOptions
+  });
+
+  // Industry Risk Chart (Pakistan)
+  new Chart(document.getElementById('pakIndRiskChart'), {
+    type: 'bar',
+    data: {
+      labels: chartData.ind_risk_labels,
+      datasets: [{
+        label: 'AI Replacement Risk',
+        data: chartData.ind_risk_values,
+        backgroundColor: 'rgba(244, 63, 94, 0.55)',
+        borderColor: 'rgba(244, 63, 94, 1)',
+        borderWidth: 1.5,
+        borderRadius: 4
+      }]
+    },
+    options: chartOptions
+  });
+
+  // Job Demand Chart (Pakistan)
+  new Chart(document.getElementById('pakJobDemandChart'), {
+    type: 'bar',
+    data: {
+      labels: chartData.job_demand_labels,
+      datasets: [{
+        label: 'Future Demand Score',
+        data: chartData.job_demand_values,
+        backgroundColor: 'rgba(16, 185, 129, 0.65)',
+        borderColor: 'rgba(16, 185, 129, 1)',
+        borderWidth: 1.5,
+        borderRadius: 4
+      }]
+    },
+    options: chartOptions
+  });
+
+  // Industry Demand Chart (Pakistan)
+  new Chart(document.getElementById('pakIndDemandChart'), {
+    type: 'bar',
+    data: {
+      labels: chartData.ind_demand_labels,
+      datasets: [{
+        label: 'Future Demand Score',
+        data: chartData.ind_demand_values,
+        backgroundColor: 'rgba(16, 185, 129, 0.55)',
+        borderColor: 'rgba(16, 185, 129, 1)',
+        borderWidth: 1.5,
+        borderRadius: 4
+      }]
+    },
+    options: chartOptions
+  });
+</script>
+{% endblock %}

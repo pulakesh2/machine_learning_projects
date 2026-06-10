@@ -1,0 +1,300 @@
+{% extends 'base.html' %}
+
+{% block title %}India Insights - AI Job Impact{% endblock %}
+
+{% block header_title %}India Insights{% endblock %}
+{% block header_subtitle %}Deep dive into AI replacement risk, future job demand, satisfaction, and work hours in India{% endblock %}
+
+{% block content %}
+<!-- Info Header -->
+<div class="card mb-8">
+  <div class="card-header">
+    <h3>India Market Highlights</h3>
+    <span class="badge badge-success"><i class="fa-solid fa-flag"></i> India Data Active</span>
+  </div>
+  <p style="font-size: 15px; color: var(--text-secondary);">
+    This tab focuses on data points recorded within India. We explore which professions are facing high automation risk, sector-specific performance in Transportation and Healthcare, and deep-dive correlations involving work hours and remote work satisfaction.
+  </p>
+</div>
+
+<!-- Risk Section -->
+<div class="visual-grid">
+  <!-- AI Risk by Job Title in India -->
+  <div class="card">
+    <div class="card-header">
+      <h3>AI Risk by Job Title in India</h3>
+      <span class="badge badge-danger"><i class="fa-solid fa-chart-bar"></i> Bar Chart</span>
+    </div>
+    <div class="chart-container">
+      <canvas id="indJobRiskChart"></canvas>
+    </div>
+  </div>
+
+  <!-- AI Risk by Industry in India -->
+  <div class="card">
+    <div class="card-header">
+      <h3>AI Risk by Industry in India</h3>
+      <span class="badge badge-danger"><i class="fa-solid fa-chart-bar"></i> Bar Chart</span>
+    </div>
+    <div class="chart-container">
+      <canvas id="indIndRiskChart"></canvas>
+    </div>
+  </div>
+</div>
+
+<!-- Specific Risk Cases -->
+<div class="visual-grid">
+  <!-- Data Engineer Risk by Industry -->
+  <div class="card">
+    <div class="card-header">
+      <h3>Data Engineer AI Risk by Industry (India)</h3>
+      <span class="badge badge-warning"><i class="fa-solid fa-database"></i> Data Engineering</span>
+    </div>
+    <p class="mb-4" style="font-size: 14px; color: var(--text-secondary);">
+      If the Data Engineer role faces automation risks, which sectors in India are most vulnerable?
+    </p>
+    <div class="table-container">
+      {{ tables.ind_de_risk_html | safe }}
+    </div>
+  </div>
+
+  <!-- Transportation Job Risks -->
+  <div class="card">
+    <div class="card-header">
+      <h3>Transportation Sector Job Risk (India)</h3>
+      <span class="badge badge-warning"><i class="fa-solid fa-truck"></i> Transportation</span>
+    </div>
+    <p class="mb-4" style="font-size: 14px; color: var(--text-secondary);">
+      Which roles are affected most by AI within India's Transportation industry?
+    </p>
+    <div class="table-container">
+      {{ tables.ind_trans_job_risk_html | safe }}
+    </div>
+  </div>
+</div>
+
+<!-- Demand Section -->
+<div class="visual-grid">
+  <!-- Future Job Demand in India -->
+  <div class="card">
+    <div class="card-header">
+      <h3>Future Demand by Job Title in India</h3>
+      <span class="badge badge-success"><i class="fa-solid fa-chart-bar"></i> Bar Chart</span>
+    </div>
+    <div class="chart-container">
+      <canvas id="indJobDemandChart"></canvas>
+    </div>
+  </div>
+
+  <!-- Job Satisfaction by Job Title in India -->
+  <div class="card">
+    <div class="card-header">
+      <h3>Average Job Satisfaction in India</h3>
+      <span class="badge badge-indigo"><i class="fa-solid fa-heart"></i> Satisfaction Index</span>
+    </div>
+    <div class="chart-container">
+      <canvas id="indJobSatChart"></canvas>
+    </div>
+  </div>
+</div>
+
+<!-- Remote Work vs Satisfaction -->
+<div class="visual-grid">
+  <!-- Pie Chart remote satisfaction -->
+  <div class="card">
+    <div class="card-header">
+      <h3>Remote vs Office Satisfaction (India)</h3>
+      <span class="badge badge-info"><i class="fa-solid fa-chart-pie"></i> Pie Chart</span>
+    </div>
+    <div class="chart-container" style="max-height: 250px; display: flex; justify-content: center;">
+      <canvas id="remoteSatChart" style="max-width: 250px;"></canvas>
+    </div>
+    <p class="mt-4 text-center" style="font-size: 13px; color: var(--text-secondary);">
+      Comparing the average satisfaction rating (Yes = {{ chart_data.remote_satisfaction_avg[0] }} / 10, No = {{ chart_data.remote_satisfaction_avg[1] }} / 10).
+    </p>
+  </div>
+
+  <!-- Product Manager & Healthcare Sector Demands -->
+  <div class="card">
+    <div class="card-header">
+      <h3>Product Manager Demand by Industry (India)</h3>
+      <span class="badge badge-info"><i class="fa-solid fa-user-gear"></i> PM Demand</span>
+    </div>
+    <div class="table-container" style="max-height: 220px; overflow-y: auto;">
+      {{ tables.ind_pm_demand_html | safe }}
+    </div>
+  </div>
+</div>
+
+<!-- Hours Section -->
+<div class="visual-grid">
+  <!-- Job hours in India -->
+  <div class="card">
+    <div class="card-header">
+      <h3>India Working Hours: Job Titles</h3>
+      <span class="badge badge-warning"><i class="fa-solid fa-clock"></i> Weekly Hours</span>
+    </div>
+    <div class="table-container">
+      {{ tables.ind_job_hours_html | safe }}
+    </div>
+  </div>
+
+  <!-- Industry hours in India -->
+  <div class="card">
+    <div class="card-header">
+      <h3>India Working Hours: Industries</h3>
+      <span class="badge badge-warning"><i class="fa-solid fa-clock"></i> Weekly Hours</span>
+    </div>
+    <div class="table-container">
+      {{ tables.ind_ind_hours_html | safe }}
+    </div>
+  </div>
+</div>
+
+<!-- Complete Data Tables -->
+<div class="visual-grid visual-grid-wide mb-8">
+  <div class="card">
+    <div class="card-header">
+      <h3>India AI Risk & Demand Rankings</h3>
+      <span class="badge badge-success"><i class="fa-solid fa-list-ol"></i> Full Rankings</span>
+    </div>
+    <div class="stats-grid" style="grid-template-columns: 1fr 1fr; margin-bottom: 0;">
+      <div>
+        <h4 class="mb-4" style="font-size: 15px; color: var(--text-secondary);">India Jobs: AI Replacement Risk</h4>
+        <div class="table-container" style="max-height: 350px; overflow-y: auto;">
+          {{ tables.ind_job_risk_html | safe }}
+        </div>
+      </div>
+      <div>
+        <h4 class="mb-4" style="font-size: 15px; color: var(--text-secondary);">India Jobs: Future Demand Score</h4>
+        <div class="table-container" style="max-height: 350px; overflow-y: auto;">
+          {{ tables.ind_job_demand_html | safe }}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const chartData = {{ chart_data | tojson }};
+
+  const chartOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        labels: { color: '#f8fafc', font: { family: 'Inter', size: 12 } }
+      }
+    },
+    scales: {
+      x: {
+        grid: { color: 'rgba(255, 255, 255, 0.05)' },
+        ticks: { color: '#94a3b8', font: { family: 'Inter', size: 11 } }
+      },
+      y: {
+        grid: { color: 'rgba(255, 255, 255, 0.05)' },
+        ticks: { color: '#94a3b8', font: { family: 'Inter', size: 11 } },
+        beginAtZero: true
+      }
+    }
+  };
+
+  // Job Risk Chart (India)
+  new Chart(document.getElementById('indJobRiskChart'), {
+    type: 'bar',
+    data: {
+      labels: chartData.job_risk_labels,
+      datasets: [{
+        label: 'AI Replacement Risk',
+        data: chartData.job_risk_values,
+        backgroundColor: 'rgba(244, 63, 94, 0.65)',
+        borderColor: 'rgba(244, 63, 94, 1)',
+        borderWidth: 1.5,
+        borderRadius: 4
+      }]
+    },
+    options: chartOptions
+  });
+
+  // Industry Risk Chart (India)
+  new Chart(document.getElementById('indIndRiskChart'), {
+    type: 'bar',
+    data: {
+      labels: chartData.ind_risk_labels,
+      datasets: [{
+        label: 'AI Replacement Risk',
+        data: chartData.ind_risk_values,
+        backgroundColor: 'rgba(244, 63, 94, 0.55)',
+        borderColor: 'rgba(244, 63, 94, 1)',
+        borderWidth: 1.5,
+        borderRadius: 4
+      }]
+    },
+    options: chartOptions
+  });
+
+  // Job Demand Chart (India)
+  new Chart(document.getElementById('indJobDemandChart'), {
+    type: 'bar',
+    data: {
+      labels: chartData.job_demand_labels,
+      datasets: [{
+        label: 'Future Demand Score',
+        data: chartData.job_demand_values,
+        backgroundColor: 'rgba(16, 185, 129, 0.65)',
+        borderColor: 'rgba(16, 185, 129, 1)',
+        borderWidth: 1.5,
+        borderRadius: 4
+      }]
+    },
+    options: chartOptions
+  });
+
+  // Satisfaction Chart (India)
+  new Chart(document.getElementById('indJobSatChart'), {
+    type: 'bar',
+    data: {
+      labels: chartData.job_sat_labels,
+      datasets: [{
+        label: 'Avg Job Satisfaction',
+        data: chartData.job_sat_values,
+        backgroundColor: 'rgba(99, 102, 241, 0.65)',
+        borderColor: 'rgba(99, 102, 241, 1)',
+        borderWidth: 1.5,
+        borderRadius: 4
+      }]
+    },
+    options: chartOptions
+  });
+
+  // Remote vs Office Satisfaction Pie Chart (India)
+  new Chart(document.getElementById('remoteSatChart'), {
+    type: 'pie',
+    data: {
+      labels: ['Remote Work Satisfaction Sum', 'Office Work Satisfaction Sum'],
+      datasets: [{
+        data: chartData.remote_satisfaction,
+        backgroundColor: [
+          'rgba(20, 184, 166, 0.65)',
+          'rgba(245, 158, 11, 0.65)'
+        ],
+        borderColor: [
+          'rgba(20, 184, 166, 1)',
+          'rgba(245, 158, 11, 1)'
+        ],
+        borderWidth: 1.5
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          position: 'bottom',
+          labels: { color: '#f8fafc', font: { family: 'Inter', size: 11 } }
+        }
+      }
+    }
+  });
+</script>
+{% endblock %}

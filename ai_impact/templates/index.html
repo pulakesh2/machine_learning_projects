@@ -1,0 +1,116 @@
+{% extends 'base.html' %}
+
+{% block title %}AI Impact on Jobs - Dashboard Overview{% endblock %}
+
+{% block header_title %}Overview Dashboard{% endblock %}
+{% block header_subtitle %}High-level summary of AI Replacement Risk & Future Job Demand{% endblock %}
+
+{% block content %}
+<!-- Metric Cards -->
+<div class="stats-grid">
+  <!-- Total Records -->
+  <div class="card stat-card">
+    <div class="stat-icon blue">
+      <i class="fa-solid fa-server"></i>
+    </div>
+    <div class="stat-info">
+      <span class="stat-label">Total Dataset Records</span>
+      <span class="stat-value">{{ overview.total_records }}</span>
+    </div>
+  </div>
+  <!-- Unique Jobs -->
+  <div class="card stat-card">
+    <div class="stat-icon indigo">
+      <i class="fa-solid fa-briefcase"></i>
+    </div>
+    <div class="stat-info">
+      <span class="stat-label">Unique Job Roles</span>
+      <span class="stat-value">{{ overview.unique_jobs }}</span>
+    </div>
+  </div>
+  <!-- Unique Industries -->
+  <div class="card stat-card">
+    <div class="stat-icon teal">
+      <i class="fa-solid fa-industry"></i>
+    </div>
+    <div class="stat-info">
+      <span class="stat-label">Unique Industries</span>
+      <span class="stat-value">{{ overview.unique_industries }}</span>
+    </div>
+  </div>
+  <!-- Avg Salary -->
+  <div class="card stat-card">
+    <div class="stat-icon amber">
+      <i class="fa-solid fa-wallet"></i>
+    </div>
+    <div class="stat-info">
+      <span class="stat-label">Avg Salary (USD)</span>
+      <span class="stat-value">${{ "{:,}".format(overview.avg_salary | int) }}</span>
+    </div>
+  </div>
+</div>
+
+<!-- Main Overview Sections -->
+<div class="visual-grid">
+  <!-- AI Replacement Risk Highlights -->
+  <div class="card">
+    <div class="card-header">
+      <h3>Global AI Replacement Risk</h3>
+      <span class="badge badge-danger"><i class="fa-solid fa-triangle-exclamation"></i> High Risk Alert</span>
+    </div>
+    <p class="mb-4">
+      Based on the dataset, the job role with the single highest AI replacement risk is <span class="highlight-text">{{ overview.highest_risk_job }}</span>, situated in the <span class="highlight-text">{{ overview.highest_risk_industry }}</span> industry with a risk index of <span class="highlight-text">{{ overview.highest_risk_val }}</span>.
+    </p>
+    
+    <h4 class="mb-4" style="font-size: 15px; color: var(--text-secondary);">Top 3 Highest AI Replacement Risk Roles:</h4>
+    <div class="table-container mb-4">
+      {{ overview.top_3_risk_html | safe }}
+    </div>
+    <div class="mt-4">
+      <a href="{{ url_for('ai_risk') }}" class="btn btn-primary">
+        <i class="fa-solid fa-magnifying-glass-chart"></i> View Full AI Risk Insights
+      </a>
+    </div>
+  </div>
+
+  <!-- Future Job Demand Highlights -->
+  <div class="card">
+    <div class="card-header">
+      <h3>Global Future Job Demand</h3>
+      <span class="badge badge-success"><i class="fa-solid fa-arrow-trend-up"></i> Growth Potential</span>
+    </div>
+    <p class="mb-4">
+      The job role projected to have the highest future demand score is <span class="highlight-text">{{ overview.highest_demand_job }}</span>, in the <span class="highlight-text">{{ overview.highest_demand_industry }}</span> industry, reaching a score of <span class="highlight-text">{{ overview.highest_demand_val }}</span>.
+    </p>
+    
+    <h4 class="mb-4" style="font-size: 15px; color: var(--text-secondary);">Top 3 Highest Future Demand Score Roles:</h4>
+    <div class="table-container mb-4">
+      {{ overview.top_3_demand_html | safe }}
+    </div>
+    <div class="mt-4">
+      <a href="{{ url_for('future_demand') }}" class="btn btn-primary">
+        <i class="fa-solid fa-magnifying-glass-chart"></i> View Full Demand Insights
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- Secondary Insights Info Alert -->
+<div class="card mb-8">
+  <div class="card-header">
+    <h3>Quick Insights Summary</h3>
+  </div>
+  <div class="alert">
+    <i class="fa-solid fa-circle-info"></i>
+    <div>
+      <h4 class="highlight-text mb-4" style="margin-top: 0;">Cross-Country Insights Included</h4>
+      <p style="margin-bottom: 8px;">
+        Our deep-dive pages explore granular metrics for countries like <span class="highlight-text">India</span> and <span class="highlight-text">Pakistan</span>, highlighting which sectors are most at risk or see the strongest growth in hiring trends.
+      </p>
+      <p>
+        Check out the sidebar to explore specific country tabs or navigate to the <span class="highlight-text">Relationships</span> page to see correlations between Work Satisfaction, Salary, Remote Work, and AI Tool adoption.
+      </p>
+    </div>
+  </div>
+</div>
+{% endblock %}
